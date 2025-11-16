@@ -38,9 +38,9 @@ Node* generateTree(int count, std::mt19937 &gen, std::uniform_int_distribution<>
 	return node;
 }
 
-void placeValue(int val, Node* root) {
+void placeValue(int val, Node* node) {
 	Node* prev;
-	Node* curr = root;
+	Node* curr = node;
 
 	while (curr != nullptr) {
 		prev = curr;
@@ -66,6 +66,7 @@ void deleteTree(Node* node) {
 
 	delete node;
 }
+
 void findMin() {
 	std::cout << "Finding the minimum..." << std::endl;
 	status = MIN;
@@ -89,19 +90,22 @@ void newTree() {
 	status = NEWTREE;
 	selectedNode = nullptr;
 }
+
+bool isOver(int x, int y, int xwidth, int ywidth) {
+	return GetMouseX() > x && GetMouseX() < x + xwidth && GetMouseY() > y && GetMouseY() < y + ywidth;
 }
 
 int main () {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(0, 69);
+    std::uniform_int_distribution<> dist(0, 500);
 
 	const int HEIGHT = 10 * 100;
 	const int WIDTH = 16 * 100;
 
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
-	InitWindow(WIDTH, HEIGHT, "That's my christmas tree!");
+	InitWindow(WIDTH, HEIGHT, "Is that my christmas tree?");
 
 	SearchAndSetResourceDir("resources");
 
@@ -115,7 +119,7 @@ int main () {
 
 	int median = nums.at(nums.size() / 2);
 
-	Node* root = new Node{median};
+	root = new Node{median};
 
 	nums.erase(nums.begin() + nums.size()/2);
 
@@ -156,11 +160,12 @@ int main () {
 			if (status == MIN && selectedNode->left != nullptr) selectedNode = selectedNode->left;
 			if (status == MAX && selectedNode->right != nullptr) selectedNode = selectedNode->right;
 		}
+
 		BeginDrawing();
 
 		ClearBackground(BLACK);
 
-		DrawText("Hello World!", 0,0,20,WHITE);
+		DrawText("Hello Pointers!", (int)(WIDTH*0.85), (int)(HEIGHT*0.4),20,WHITE);
 
 		if (nums.size() > 0 && count % 30 == 0) {
 			int i =  dist(gen) % nums.size();
@@ -168,12 +173,17 @@ int main () {
 			nums.erase(nums.begin() + i);
 		}
 
-		traverseAndDraw(root, WIDTH/2, 20, 240);
+		traverseAndDraw(root, WIDTH/2, 20, 400);
 
 		for (Button b : buttons) {
-			DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, WHITE);
-			DrawText(b.name.c_str(), b.x + b.xwidth/2, b.y+b.ywidth/2, 50, BLACK);
-			if (IsMouseButtonPressed(0) && GetMouseX() > b.x && GetMouseX() < b.x + b.xwidth && GetMouseY() > b.y && GetMouseY() < b.y + b.ywidth) {
+			if (isOver(b.x, b.y, b.xwidth, b.ywidth)) {
+				DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, BEIGE);
+			}
+			else {
+				DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, WHITE);
+			}
+			DrawText(b.name.c_str(), b.x + b.xwidth/3, b.y+b.ywidth/3, 20, BLACK);
+			if (IsMouseButtonPressed(0) && isOver(b.x, b.y, b.xwidth, b.ywidth)) {
 				(*b.mousePressed)();
 			}
 		}
