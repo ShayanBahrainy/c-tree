@@ -1,7 +1,7 @@
 struct Button {
     int x;
-    int xwidth;
     int y;
+    int xwidth;
     int ywidth;
     std::string name;
 
