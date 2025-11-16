@@ -34,11 +34,32 @@ Node* generateTree(int count, std::mt19937 &gen, std::uniform_int_distribution<>
 
 	return node;
 }
+void placeValue(int val, Node* root) {
+	Node* prev;
+	Node* curr = root;
+
+	while (curr != nullptr) {
+		prev = curr;
+		if (val < curr->val) {
+			curr = curr->left;
+		}
+		else {
+			curr = curr->right;
+		}
+	}
+
+	if (val < prev->val) {
+		prev->left = new Node{val};
+	}
+	else {
+		prev->right = new Node{val};
+	}
+}
 
 int main () {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(0, 99);
+    std::uniform_int_distribution<> dist(0, 69);
 
 	const int HEIGHT = 10 * 100;
 	const int WIDTH = 16 * 100;
@@ -49,8 +70,21 @@ int main () {
 
 	SearchAndSetResourceDir("resources");
 
-	Node* root = generateTree(5, gen, dist);
+	std::vector<int> nums;
 
+	for (int i = 0; i < 50; ++i) {
+		nums.push_back(dist(gen));
+	}
+
+	std::sort(nums.begin(), nums.end());
+
+	int median = nums.at(nums.size() / 2);
+
+	Node* root = new Node{median};
+
+	nums.erase(nums.begin() + nums.size()/2);
+
+	int count = 0;
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 
@@ -58,8 +92,15 @@ int main () {
 
 		DrawText("Hello World!", 0,0,20,WHITE);
 
+		if (nums.size() > 0 && count % 30 == 0) {
+			int i =  dist(gen) % nums.size();
+			placeValue(nums.at(i), root);
+			nums.erase(nums.begin() + i);
+		}
+
 		traverseAndDraw(root, WIDTH/2, 20, 240);
 
+		count++;
 		EndDrawing();
 	}
 	CloseWindow();
