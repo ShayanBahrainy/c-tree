@@ -66,6 +66,29 @@ void deleteTree(Node* node) {
 
 	delete node;
 }
+void findMin() {
+	std::cout << "Finding the minimum..." << std::endl;
+	status = MIN;
+	selectedNode = nullptr;
+}
+
+void findMax() {
+	std::cout << "Finding the maximum.." << std::endl;
+	status = MAX;
+	selectedNode = nullptr;
+}
+
+void reset() {
+	std::cout << "Resetting..." << std::endl;
+	status = NONE;
+	selectedNode = nullptr;
+}
+
+void newTree() {
+	std::cout << "Creating new tree..." << std::endl;
+	status = NEWTREE;
+	selectedNode = nullptr;
+}
 }
 
 int main () {
@@ -98,10 +121,41 @@ int main () {
 
 	std::vector<Button> buttons;
 
-	buttons.push_back(Button{WIDTH/2, HEIGHT/2, 300, 300, "Nice One!", *niceOne});
+	Button minButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.8), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Minimum", *findMin};
+	Button maxButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
+	Button resetButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
+	Button newTreeButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
+
+	buttons.push_back(minButton);
+	buttons.push_back(maxButton);
+	buttons.push_back(resetButton);
+	buttons.push_back(newTreeButton);
 
 	int count = 0;
 	while (!WindowShouldClose()) {
+		if (status == NEWTREE) {
+			deleteTree(root);
+			nums.clear();
+			for (int i = 0; i < 50; i++) {
+				nums.push_back(dist(gen));
+			}
+
+			median = nums.at(nums.size() / 2);
+			nums.erase(nums.begin() + nums.size()/2);
+
+			root = new Node{median};
+
+			status = NONE;
+		}
+
+
+		if (status != NONE && selectedNode == nullptr) {
+			selectedNode = root;
+		}
+		else if (count % 30 == 0) {
+			if (status == MIN && selectedNode->left != nullptr) selectedNode = selectedNode->left;
+			if (status == MAX && selectedNode->right != nullptr) selectedNode = selectedNode->right;
+		}
 		BeginDrawing();
 
 		ClearBackground(BLACK);
