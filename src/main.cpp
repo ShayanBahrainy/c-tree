@@ -60,8 +60,12 @@ void placeValue(int val, Node* root) {
 	}
 }
 
-void niceOne() {
-	std::cout << "Nice one!" << std::endl;
+void deleteTree(Node* node) {
+	if (node->left != nullptr) deleteTree(node->left);
+	if (node->right != nullptr) deleteTree(node->right);
+
+	delete node;
+}
 }
 
 int main () {
@@ -123,6 +127,9 @@ int main () {
 		count++;
 		EndDrawing();
 	}
+
+	deleteTree(root);
+
 	CloseWindow();
 	return 0;
 }
