@@ -8,17 +8,16 @@
 #include "Node.h"
 
 
-void traverseAndDraw(Node* root, int xOffset, int yOffset, int startingSpread=240, int count=0) {
-	count++;
-	DrawCircle(xOffset, yOffset, 20, WHITE);
-	DrawText(std::to_string(root->val).c_str(), xOffset - 5, yOffset - 5, 10, BLACK);
+void traverseAndDraw(Node* root, int xOffset, int yOffset, int startingSpread=240) {
+	DrawCircle(xOffset, yOffset, 10, WHITE);
+	DrawText(std::to_string(root->val).c_str(), xOffset - 5, yOffset - 5, 5, BLACK);
 	if (root->left != nullptr) {
-		DrawLine(xOffset, yOffset, xOffset - (startingSpread/count), yOffset + 60, GREEN);
-		traverseAndDraw(root->left, xOffset - (startingSpread/count), yOffset + 60, startingSpread, count);
+		DrawLine(xOffset, yOffset, xOffset - startingSpread, yOffset + 60, GREEN);
+		traverseAndDraw(root->left, xOffset - startingSpread, yOffset + 60, startingSpread/2);
 	}
 	if (root->right != nullptr) {
-		DrawLine(xOffset, yOffset, xOffset + (startingSpread/count), yOffset + 60, PURPLE);
-		traverseAndDraw(root->right, xOffset + (startingSpread/count) , yOffset + 60, startingSpread, count);
+		DrawLine(xOffset, yOffset, xOffset + startingSpread, yOffset + 60, PURPLE);
+		traverseAndDraw(root->right, xOffset + startingSpread, yOffset + 60, startingSpread/2);
 	}
 }
 
@@ -59,7 +58,7 @@ int main () {
 
 		DrawText("Hello World!", 0,0,20,WHITE);
 
-		traverseAndDraw(root, WIDTH/2, 0, 240);
+		traverseAndDraw(root, WIDTH/2, 20, 240);
 
 		EndDrawing();
 	}
