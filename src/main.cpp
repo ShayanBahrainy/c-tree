@@ -2,10 +2,13 @@
 #include <string>
 #include <cstdlib>
 #include <random>
+#include <algorithm>
+#include <iostream>
 
 #include "raylib.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "Node.h"
+#include "Button.h"
 
 
 void traverseAndDraw(Node* root, int xOffset, int yOffset, int startingSpread=240) {
@@ -34,6 +37,7 @@ Node* generateTree(int count, std::mt19937 &gen, std::uniform_int_distribution<>
 
 	return node;
 }
+
 void placeValue(int val, Node* root) {
 	Node* prev;
 	Node* curr = root;
@@ -54,6 +58,10 @@ void placeValue(int val, Node* root) {
 	else {
 		prev->right = new Node{val};
 	}
+}
+
+void niceOne() {
+	std::cout << "Nice one!" << std::endl;
 }
 
 int main () {
@@ -84,6 +92,10 @@ int main () {
 
 	nums.erase(nums.begin() + nums.size()/2);
 
+	std::vector<Button> buttons;
+
+	buttons.push_back(Button{WIDTH/2, HEIGHT/2, 300, 300, "Nice One!", *niceOne});
+
 	int count = 0;
 	while (!WindowShouldClose()) {
 		BeginDrawing();
@@ -99,6 +111,14 @@ int main () {
 		}
 
 		traverseAndDraw(root, WIDTH/2, 20, 240);
+
+		for (Button b : buttons) {
+			DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, WHITE);
+			DrawText(b.name.c_str(), b.x + b.xwidth/2, b.y+b.ywidth/2, 50, BLACK);
+			if (IsMouseButtonPressed(0) && GetMouseX() > b.x && GetMouseX() < b.x + b.xwidth && GetMouseY() > b.y && GetMouseY() < b.y + b.ywidth) {
+				(*b.mousePressed)();
+			}
+		}
 
 		count++;
 		EndDrawing();
