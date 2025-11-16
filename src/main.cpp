@@ -11,16 +11,19 @@
 #include "Button.h"
 
 
-void traverseAndDraw(Node* root, int xOffset, int yOffset, int startingSpread=240) {
-	DrawCircle(xOffset, yOffset, 10, WHITE);
-	DrawText(std::to_string(root->val).c_str(), xOffset - 5, yOffset - 5, 5, BLACK);
-	if (root->left != nullptr) {
-		DrawLine(xOffset, yOffset, xOffset - startingSpread, yOffset + 60, GREEN);
-		traverseAndDraw(root->left, xOffset - startingSpread, yOffset + 60, startingSpread/2);
+void traverseAndDraw(Node* node, int xOffset, int yOffset, int startingSpread=240) {
+	if (selectedNode == node) {
+		DrawCircle(xOffset, yOffset, 20, PURPLE);
 	}
-	if (root->right != nullptr) {
-		DrawLine(xOffset, yOffset, xOffset + startingSpread, yOffset + 60, PURPLE);
-		traverseAndDraw(root->right, xOffset + startingSpread, yOffset + 60, startingSpread/2);
+	DrawCircle(xOffset, yOffset, 15, WHITE);
+	DrawText(std::to_string(node->val).c_str(), xOffset - 5, yOffset - 5, 5, BLACK);
+	if (node->left != nullptr) {
+		DrawLine(xOffset, yOffset, xOffset - startingSpread, yOffset + 60, BLUE);
+		traverseAndDraw(node->left, xOffset - startingSpread, yOffset + 60, startingSpread/2);
+	}
+	if (node->right != nullptr) {
+		DrawLine(xOffset, yOffset, xOffset + startingSpread, yOffset + 60, RED);
+		traverseAndDraw(node->right, xOffset + startingSpread, yOffset + 60, startingSpread/2);
 	}
 }
 
