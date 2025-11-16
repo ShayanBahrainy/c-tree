@@ -10,6 +10,11 @@
 #include "Node.h"
 #include "Button.h"
 
+enum Status {NONE, MAX, MIN, NEWTREE};
+
+Status status = NONE;
+Node* selectedNode = nullptr;
+Node* root;
 
 void traverseAndDraw(Node* node, int xOffset, int yOffset, int startingSpread=240) {
 	if (selectedNode == node) {
