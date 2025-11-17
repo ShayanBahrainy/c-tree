@@ -192,7 +192,7 @@ int main () {
 			}
 			DrawText(b.name.c_str(), b.x + b.xwidth/3, b.y+b.ywidth/3, 20, BLACK);
 			if (IsMouseButtonPressed(0) && isOver(b.x, b.y, b.xwidth, b.ywidth)) {
-				(*b.mousePressed)();
+				(*b.mousePressed)(b);
 			}
 		}
 

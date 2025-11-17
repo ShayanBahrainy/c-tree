@@ -5,5 +5,5 @@ struct Button {
     int ywidth;
     std::string name;
 
-    void (*mousePressed) ();
+    void (*mousePressed) (Button& self);
 };
