@@ -4,17 +4,18 @@
 #include <random>
 #include <algorithm>
 #include <iostream>
-
+#include <sstream>
 #include "raylib.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "Node.h"
 #include "Button.h"
 
-enum Status {NONE, MAX, MIN, NEWTREE};
+enum Status {NONE, MAX, MIN, NEWTREE, BINARYSEARCH, LINEARSEARCH};
 
 Status status = NONE;
 Node* selectedNode = nullptr;
 Node* root;
+bool setupMode = false;
 
 void traverseAndDraw(Node* node, int xOffset, int yOffset, int startingSpread=240) {
 	if (selectedNode == node) {
@@ -69,34 +70,58 @@ void placeValue(int val, Node* node) {
 }
 
 void deleteTree(Node* node) {
+	if (node == nullptr) return;
 	if (node->left != nullptr) deleteTree(node->left);
 	if (node->right != nullptr) deleteTree(node->right);
 
 	delete node;
 }
 
-void findMin() {
+void findMin(Button& self) {
 	std::cout << "Finding the minimum..." << std::endl;
 	status = MIN;
 	selectedNode = nullptr;
 }
 
-void findMax() {
+void findMax(Button& self) {
 	std::cout << "Finding the maximum.." << std::endl;
 	status = MAX;
 	selectedNode = nullptr;
 }
 
-void reset() {
+void reset(Button& self) {
 	std::cout << "Resetting..." << std::endl;
 	status = NONE;
 	selectedNode = nullptr;
 }
 
-void newTree() {
+void newTree(Button& self) {
 	std::cout << "Creating new tree..." << std::endl;
 	status = NEWTREE;
 	selectedNode = nullptr;
+}
+
+void switchMode(Button& self) {
+	std::cout << "Switching mode..." << std::endl;
+	const std::string BT = "Binary Tree";
+	const std::string BS = "Binary Search";
+	const std::string LS = "Linear Search";
+	std::cout << self.name << std::endl;
+	if (self.name == BT) {
+		self.name = BS;
+		status = BINARYSEARCH;
+		setupMode = true;
+	}
+	else if (self.name == BS) {
+		self.name = LS;
+		status = LINEARSEARCH;
+		setupMode = true;
+	}
+	else if (self.name == LS) {
+		self.name = BT;
+		status = NEWTREE;
+		setupMode = true;
+	}
 }
 
 bool isOver(int x, int y, int xwidth, int ywidth) {
@@ -110,6 +135,7 @@ int main () {
 
 	const int HEIGHT = 10 * 100;
 	const int WIDTH = 16 * 100;
+	const std::string BS_HELPER = "Red = Left Bound\nBlue = Right Bound\nPurple = R+L/2 (Midpoint)\nGrey = Target";
 
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
@@ -137,17 +163,28 @@ int main () {
 	Button maxButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
 	Button resetButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
 	Button newTreeButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
+	Button modeButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.4), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Binary Tree", *switchMode};
 
-	buttons.push_back(minButton);
-	buttons.push_back(maxButton);
-	buttons.push_back(resetButton);
-	buttons.push_back(newTreeButton);
+	std::vector<int> searchList;
+	int leftBound;
+	int rightBound;
+	int midPoint;
+	int target;
 
 	int count = 0;
 	while (!WindowShouldClose()) {
+		if (status != BINARYSEARCH && status != LINEARSEARCH) {
+			buttons = {minButton, maxButton, resetButton, newTreeButton, modeButton};
+		}
+		else {
+			buttons = {modeButton};
+		}
+
 		if (status == NEWTREE) {
 			deleteTree(root);
 			nums.clear();
+			searchList.clear();
+
 			for (int i = 0; i < 50; i++) {
 				nums.push_back(dist(gen));
 			}
@@ -160,30 +197,120 @@ int main () {
 			status = NONE;
 		}
 
+		if (status == BINARYSEARCH && setupMode) {
+			deleteTree(root);
+			for (int i = 0; i < 50; ++i) {
+				searchList.push_back(i);
+			}
+			nums.clear();
+			root = nullptr;
+			leftBound = 0;
+			rightBound = searchList.size() - 1;
+			midPoint = (leftBound + rightBound) / 2;
+			target = searchList.at(dist(gen) % searchList.size());
+			setupMode = false;
+		}
 
-		if (status != NONE && selectedNode == nullptr) {
+		if (status == LINEARSEARCH && setupMode) {
+			deleteTree(root);
+			for (int i = 0; i < 50; ++i) {
+				searchList.push_back(i);
+			}
+			nums.clear();
+			root = nullptr;
+			leftBound = -1;
+			rightBound = -1;
+			midPoint = 0;
+			target = searchList.at(dist(gen) % searchList.size());
+			setupMode = false;
+		}
+
+		if (status == NONE && root == nullptr) {
+			status = NEWTREE;
+			searchList.clear();
+		}
+
+		if ((status == MIN || status == MAX) && selectedNode == nullptr) {
 			selectedNode = root;
+		}
+		else if (count % 120 == 0) {
+			if (status == BINARYSEARCH) {
+				if (searchList.at(midPoint) < target) {
+					leftBound = midPoint + 1;
+					midPoint = (leftBound + rightBound)/2;
+				}
+				if (searchList.at(midPoint) > target) {
+					rightBound = midPoint - 1;
+					midPoint = (leftBound + rightBound)/2;
+				}
+			}
 		}
 		else if (count % 30 == 0) {
 			if (status == MIN && selectedNode->left != nullptr) selectedNode = selectedNode->left;
 			if (status == MAX && selectedNode->right != nullptr) selectedNode = selectedNode->right;
+			if (status == LINEARSEARCH && searchList.at(midPoint) != target) midPoint++;
 		}
 
 		BeginDrawing();
 
 		ClearBackground(BLACK);
 
-		DrawText("Hello Pointers!", (int)(WIDTH*0.85), (int)(HEIGHT*0.4),20,WHITE);
-
+		//If we have more numbers to place, place them every 30 frames
 		if (nums.size() > 0 && count % 30 == 0) {
 			int i =  dist(gen) % nums.size();
 			placeValue(nums.at(i), root);
 			nums.erase(nums.begin() + i);
 		}
 
-		traverseAndDraw(root, WIDTH/2, 20, 400);
+		//Draw tree
+		if (root != nullptr) {
+			traverseAndDraw(root, WIDTH/2, 20, 400);
+		}
 
-		for (Button b : buttons) {
+		//Draw list
+		for (int i = 0; i < searchList.size(); ++i) {
+			int x = WIDTH/20 + (i * 30);
+			DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BEIGE);
+			if (searchList.at(i) == target) {
+				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BLACK);
+			} else {
+				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BEIGE);
+			}
+			DrawRectangle(x, HEIGHT/3, 30, 30, WHITE);
+			DrawText(std::to_string(searchList.at(i)).c_str(), x + 2, HEIGHT/3 + 10, 20, BLACK);
+			//Draw bound circles
+			if (status == BINARYSEARCH || status == LINEARSEARCH) {
+				if (leftBound == i) {
+					DrawCircle(x + 15, HEIGHT/3 - 20, 10, RED);
+				}
+				if (rightBound == i) {
+					DrawCircle(x + 15, HEIGHT/3 - 20, 10, BLUE);
+				}
+				if (midPoint == i) {
+					DrawCircle(x + 15, HEIGHT/3 - 20, 10, PURPLE);
+				}
+			}
+		}
+
+		//Binary search helper text
+		if (status == BINARYSEARCH) {
+			DrawText(BS_HELPER.c_str(), 50, 50, 20, WHITE);
+		}
+		//BST result text
+		if ((status == MIN || status == MAX) && selectedNode != nullptr) {
+			std::ostringstream text;
+			text << "Current ";
+			if (status == MIN) {
+				text << "min";
+			}
+			else {
+				text << "max";
+			}
+			text << ": " << selectedNode->val;
+			DrawText(text.str().c_str(), (int)(WIDTH * 0.8), HEIGHT/20, 20, WHITE);
+		}
+
+		for (Button& b : buttons) {
 			if (isOver(b.x, b.y, b.xwidth, b.ywidth)) {
 				DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, BEIGE);
 			}
@@ -195,7 +322,6 @@ int main () {
 				(*b.mousePressed)(b);
 			}
 		}
-
 		count++;
 		EndDrawing();
 	}
