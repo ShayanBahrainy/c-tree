@@ -77,48 +77,48 @@ void deleteTree(Node* node) {
 	delete node;
 }
 
-void findMin(Button& self) {
+void findMin(Button* self) {
 	std::cout << "Finding the minimum..." << std::endl;
 	status = MIN;
 	selectedNode = nullptr;
 }
 
-void findMax(Button& self) {
+void findMax(Button* self) {
 	std::cout << "Finding the maximum.." << std::endl;
 	status = MAX;
 	selectedNode = nullptr;
 }
 
-void reset(Button& self) {
+void reset(Button* self) {
 	std::cout << "Resetting..." << std::endl;
 	status = NONE;
 	selectedNode = nullptr;
 }
 
-void newTree(Button& self) {
+void newTree(Button* self) {
 	std::cout << "Creating new tree..." << std::endl;
 	status = NEWTREE;
 	selectedNode = nullptr;
 }
 
-void switchMode(Button& self) {
+void switchMode(Button* self) {
 	std::cout << "Switching mode..." << std::endl;
 	const std::string BT = "Binary Tree";
 	const std::string BS = "Binary Search";
 	const std::string LS = "Linear Search";
-	std::cout << self.name << std::endl;
-	if (self.name == BT) {
-		self.name = BS;
+	std::cout << self->name << std::endl;
+	if (self->name == BT) {
+		self->name = BS;
 		status = BINARYSEARCH;
 		setupMode = true;
 	}
-	else if (self.name == BS) {
-		self.name = LS;
+	else if (self->name == BS) {
+		self->name = LS;
 		status = LINEARSEARCH;
 		setupMode = true;
 	}
-	else if (self.name == LS) {
-		self.name = BT;
+	else if (self->name == LS) {
+		self->name = BT;
 		status = NEWTREE;
 		setupMode = true;
 	}
@@ -157,13 +157,13 @@ int main () {
 
 	nums.erase(nums.begin() + nums.size()/2);
 
-	std::vector<Button> buttons;
+	std::vector<Button*> buttons;
 
-	Button minButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.8), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Minimum", *findMin};
-	Button maxButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
-	Button resetButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
-	Button newTreeButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
-	Button modeButton = Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.4), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Binary Tree", *switchMode};
+	Button* minButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.8), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Minimum", *findMin};
+	Button* maxButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
+	Button* resetButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
+	Button* newTreeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
+	Button* modeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.4), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Binary Tree", *switchMode};
 
 	std::vector<int> searchList;
 	int leftBound;
@@ -310,16 +310,16 @@ int main () {
 			DrawText(text.str().c_str(), (int)(WIDTH * 0.8), HEIGHT/20, 20, WHITE);
 		}
 
-		for (Button& b : buttons) {
-			if (isOver(b.x, b.y, b.xwidth, b.ywidth)) {
-				DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, BEIGE);
+		for (Button* b : buttons) {
+			if (isOver(b->x, b->y, b->xwidth, b->ywidth)) {
+				DrawRectangle(b->x, b->y, b->xwidth, b->ywidth, BEIGE);
 			}
 			else {
-				DrawRectangle(b.x, b.y, b.xwidth, b.ywidth, WHITE);
+				DrawRectangle(b->x, b->y, b->xwidth, b->ywidth, WHITE);
 			}
-			DrawText(b.name.c_str(), b.x + b.xwidth/3, b.y+b.ywidth/3, 20, BLACK);
-			if (IsMouseButtonPressed(0) && isOver(b.x, b.y, b.xwidth, b.ywidth)) {
-				(*b.mousePressed)(b);
+			DrawText(b->name.c_str(), b->x + b->xwidth/3, b->y+b->ywidth/3, 20, BLACK);
+			if (IsMouseButtonPressed(0) && isOver(b->x, b->y, b->xwidth, b->ywidth)) {
+				(*b->mousePressed)(b);
 			}
 		}
 		count++;
@@ -327,6 +327,9 @@ int main () {
 	}
 
 	deleteTree(root);
+	for (Button* b : buttons) {
+		delete b;
+	}
 
 	CloseWindow();
 	return 0;
