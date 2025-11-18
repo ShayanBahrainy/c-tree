@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "raylib.h"
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#include "resource_dir.h"
 #include "Node.h"
 #include "Button.h"
 
@@ -114,7 +114,7 @@ void switchMode(Button* self) {
 		self->name = BS;
 		status = BINARYSEARCH;
 		setupMode = true;
-		self->y = HEIGHT/10 * 8;
+		self->y = HEIGHT/10 * 9;
 	}
 	else if (self->name == BS) {
 		self->name = LS;
@@ -125,7 +125,7 @@ void switchMode(Button* self) {
 		self->name = BT;
 		status = NEWTREE;
 		setupMode = true;
-		self->y = HEIGHT/10 * 4;
+		self->y = HEIGHT/10 * 5;
 	}
 }
 
@@ -140,7 +140,7 @@ int main () {
 
 	const std::string BS_HELPER = "Red = Left Bound\nBlue = Right Bound\nPurple = R+L/2 (Midpoint)\nGrey = Target";
 
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE);
 
 	InitWindow(WIDTH, HEIGHT, "Is that my christmas tree?");
 
@@ -162,11 +162,11 @@ int main () {
 
 	std::vector<Button*> buttons;
 
-	Button* minButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.8), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Minimum", *findMin};
-	Button* maxButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
-	Button* resetButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
-	Button* newTreeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
-	Button* modeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.4), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Binary Tree", *switchMode};
+	Button* minButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.9), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Minimum", *findMin};
+	Button* maxButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.8), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Maximum", *findMax};
+	Button* resetButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.7), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Reset", *reset};
+	Button* newTreeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.6), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "New Tree", *newTree};
+	Button* modeButton = new Button{(int)(WIDTH*0.8), (int)(HEIGHT*0.5), (int)(0.2 * WIDTH), (int)(0.1 * HEIGHT), "Binary Tree", *switchMode};
 
 	std::vector<int> searchList;
 	int leftBound;
@@ -202,10 +202,13 @@ int main () {
 
 		if (status == BINARYSEARCH && setupMode) {
 			deleteTree(root);
-			for (int i = 0; i < 50; ++i) {
-				searchList.push_back(i);
+			searchList.clear();
+			for (int i = 0; i < 40; ++i) {
+				searchList.push_back(dist(gen));
 			}
 			nums.clear();
+			std::sort(searchList.begin(), searchList.end());
+
 			root = nullptr;
 			leftBound = 0;
 			rightBound = searchList.size() - 1;
@@ -213,12 +216,14 @@ int main () {
 			target = searchList.at(dist(gen) % searchList.size());
 			setupMode = false;
 		}
-
 		if (status == LINEARSEARCH && setupMode) {
 			deleteTree(root);
-			for (int i = 0; i < 50; ++i) {
-				searchList.push_back(i);
+			searchList.clear();
+			for (int i = 0; i < 40; ++i) {
+				searchList.push_back(dist(gen));
 			}
+			std::sort(searchList.begin(), searchList.end());
+
 			nums.clear();
 			root = nullptr;
 			leftBound = -1;
@@ -269,28 +274,27 @@ int main () {
 		if (root != nullptr) {
 			traverseAndDraw(root, WIDTH/2, 20, 400);
 		}
-
 		//Draw list
 		for (int i = 0; i < searchList.size(); ++i) {
-			int x = WIDTH/20 + (i * 30);
-			DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BEIGE);
+			int x = (int) (0.015 * WIDTH + (i * 40));
+			DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 45, 45, BEIGE);
 			if (searchList.at(i) == target) {
-				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BLACK);
+				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 45, 45, BLACK);
 			} else {
-				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 35, 35, BEIGE);
+				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 45, 45, BEIGE);
 			}
-			DrawRectangle(x, HEIGHT/3, 30, 30, WHITE);
+			DrawRectangle(x, HEIGHT/3, 40, 40, WHITE);
 			DrawText(std::to_string(searchList.at(i)).c_str(), x + 2, HEIGHT/3 + 10, 20, BLACK);
 			//Draw bound circles
 			if (status == BINARYSEARCH || status == LINEARSEARCH) {
 				if (leftBound == i) {
-					DrawCircle(x + 15, HEIGHT/3 - 20, 10, RED);
+					DrawCircle(x + 20, HEIGHT/3 - 20, 10, RED);
 				}
 				if (rightBound == i) {
-					DrawCircle(x + 15, HEIGHT/3 - 20, 10, BLUE);
+					DrawCircle(x + 20, HEIGHT/3 - 20, 10, BLUE);
 				}
 				if (midPoint == i) {
-					DrawCircle(x + 15, HEIGHT/3 - 20, 10, PURPLE);
+					DrawCircle(x + 20, HEIGHT/3 - 20, 10, PURPLE);
 				}
 			}
 		}
