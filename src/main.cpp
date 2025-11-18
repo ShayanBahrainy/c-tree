@@ -12,6 +12,9 @@
 
 enum Status {NONE, MAX, MIN, NEWTREE, BINARYSEARCH, LINEARSEARCH};
 
+const int HEIGHT = 10 * 100;
+const int WIDTH = 16 * 100;
+
 Status status = NONE;
 Node* selectedNode = nullptr;
 Node* root;
@@ -111,6 +114,7 @@ void switchMode(Button* self) {
 		self->name = BS;
 		status = BINARYSEARCH;
 		setupMode = true;
+		self->y = HEIGHT/10 * 8;
 	}
 	else if (self->name == BS) {
 		self->name = LS;
@@ -121,6 +125,7 @@ void switchMode(Button* self) {
 		self->name = BT;
 		status = NEWTREE;
 		setupMode = true;
+		self->y = HEIGHT/10 * 4;
 	}
 }
 
@@ -133,8 +138,6 @@ int main () {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, 500);
 
-	const int HEIGHT = 10 * 100;
-	const int WIDTH = 16 * 100;
 	const std::string BS_HELPER = "Red = Left Bound\nBlue = Right Bound\nPurple = R+L/2 (Midpoint)\nGrey = Target";
 
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
