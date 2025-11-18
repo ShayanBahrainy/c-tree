@@ -12,9 +12,8 @@
 
 enum Status {NONE, MAX, MIN, NEWTREE, BINARYSEARCH, LINEARSEARCH};
 
-//Set in window loop with GetWindowWidth/Height (Windows automatically maximizes)
-int HEIGHT = 0;
-int WIDTH = 0;
+int HEIGHT = 10 * 100;
+int WIDTH = 16 * 100;
 
 Status status = NONE;
 Node* selectedNode = nullptr;
