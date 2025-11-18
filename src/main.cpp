@@ -114,7 +114,7 @@ void switchMode(Button* self) {
 		self->name = BS;
 		status = BINARYSEARCH;
 		setupMode = true;
-		self->y = HEIGHT/10 * 9;
+		self->y = (int) (0.9 * HEIGHT);
 	}
 	else if (self->name == BS) {
 		self->name = LS;
@@ -125,7 +125,7 @@ void switchMode(Button* self) {
 		self->name = BT;
 		status = NEWTREE;
 		setupMode = true;
-		self->y = HEIGHT/10 * 5;
+		self->y = (int) (0.5 * HEIGHT);
 	}
 }
 
@@ -202,37 +202,31 @@ int main () {
 			status = NONE;
 		}
 
-		if (status == BINARYSEARCH && setupMode) {
+		if ((status == BINARYSEARCH || status == LINEARSEARCH) && setupMode) {
 			deleteTree(root);
 			searchList.clear();
-			for (int i = 0; i < 40; ++i) {
+			for (int i = 0; i < 35; ++i) {
 				searchList.push_back(dist(gen));
 			}
+
 			nums.clear();
+
 			std::sort(searchList.begin(), searchList.end());
 
 			root = nullptr;
-			leftBound = 0;
-			rightBound = searchList.size() - 1;
-			midPoint = (leftBound + rightBound) / 2;
 			target = searchList.at(dist(gen) % searchList.size());
 			setupMode = false;
-		}
-		if (status == LINEARSEARCH && setupMode) {
-			deleteTree(root);
-			searchList.clear();
-			for (int i = 0; i < 40; ++i) {
-				searchList.push_back(dist(gen));
-			}
-			std::sort(searchList.begin(), searchList.end());
 
-			nums.clear();
-			root = nullptr;
-			leftBound = -1;
-			rightBound = -1;
-			midPoint = 0;
-			target = searchList.at(dist(gen) % searchList.size());
-			setupMode = false;
+			if (status == BINARYSEARCH) {
+				leftBound = 0;
+				rightBound = searchList.size() - 1;
+				midPoint = (leftBound + rightBound) / 2;
+			}
+			else {
+				leftBound = -1;
+				rightBound = -1;
+				midPoint = 0;
+			}
 		}
 
 		if (status == NONE && root == nullptr) {
@@ -278,7 +272,7 @@ int main () {
 		}
 		//Draw list
 		for (int i = 0; i < searchList.size(); ++i) {
-			int x = (int) (0.015 * WIDTH + (i * 40));
+			int x = (int)(WIDTH/40 * 2.5) + (i * 40);
 			DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 45, 45, BEIGE);
 			if (searchList.at(i) == target) {
 				DrawRectangle(x - 2.5, HEIGHT/3 - 2.5, 45, 45, BLACK);
@@ -305,6 +299,7 @@ int main () {
 		if (status == BINARYSEARCH) {
 			DrawText(BS_HELPER.c_str(), 50, 50, 20, WHITE);
 		}
+
 		//BST result text
 		if ((status == MIN || status == MAX) && selectedNode != nullptr) {
 			std::ostringstream text;
