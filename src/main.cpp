@@ -12,8 +12,9 @@
 
 enum Status {NONE, MAX, MIN, NEWTREE, BINARYSEARCH, LINEARSEARCH};
 
-const int HEIGHT = 10 * 100;
-const int WIDTH = 16 * 100;
+//Set in window loop with GetWindowWidth/Height (Windows automatically maximizes)
+int HEIGHT = 0;
+int WIDTH = 0;
 
 Status status = NONE;
 Node* selectedNode = nullptr;
@@ -140,7 +141,7 @@ int main () {
 
 	const std::string BS_HELPER = "Red = Left Bound\nBlue = Right Bound\nPurple = R+L/2 (Midpoint)\nGrey = Target";
 
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE);
+	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED | FLAG_WINDOW_UNDECORATED);
 
 	InitWindow(WIDTH, HEIGHT, "Is that my christmas tree?");
 
@@ -176,6 +177,8 @@ int main () {
 
 	int count = 0;
 	while (!WindowShouldClose()) {
+		HEIGHT = GetScreenHeight();
+		WIDTH = GetScreenWidth();
 		if (status != BINARYSEARCH && status != LINEARSEARCH) {
 			buttons = {minButton, maxButton, resetButton, newTreeButton, modeButton};
 		}
